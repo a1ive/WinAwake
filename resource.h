@@ -11,12 +11,15 @@
 #define IDS_MENU_KEEP_SCREEN_ON         202
 #define IDS_MENU_TURN_OFF_SCREEN        203
 #define IDS_MENU_SLEEP                  204
-#define IDS_MENU_EXIT                   205
-#define IDS_ERR                         206
-#define IDS_ERR_CREATE_WINDOW           207
-#define IDS_ERR_GET_PRIVILEGE           208
+#define IDS_MENU_POWER_SCHEMES          205
+#define IDS_MENU_OPEN_POWER_MENU        206
+#define IDS_MENU_EXIT                   207
+#define IDS_ERR                         208
+#define IDS_ERR_CREATE_WINDOW           209
+#define IDS_ERR_GET_PRIVILEGE           210
+#define IDS_ERR_ACTIVATE_SCHEME         211
 
-#define MAX_IDS_TEXT 208
+#define MAX_IDS_TEXT 211
 
 #define COUNT_IDS_TXT (MAX_IDS_TEXT - MIN_IDS_TXT + 1)
 

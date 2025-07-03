@@ -3,6 +3,7 @@
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 #include <stdlib.h>
+#include <shellapi.h>
 
 #include "awake.h"
 #include "utils.h"
@@ -59,6 +60,12 @@ WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	case WM_COMMAND:
 	{
 		int wmId = LOWORD(wParam);
+		// Handle dynamic power scheme menu items
+		if (wmId >= IDM_POWER_SCHEME_BASE && wmId < (IDM_POWER_SCHEME_BASE + MAX_POWER_SCHEMES))
+		{
+			AW_ActivatePowerScheme((ULONG)wmId - IDM_POWER_SCHEME_BASE);
+			break;
+		}
 		// Parse the menu selections
 		switch (wmId)
 		{
@@ -80,6 +87,12 @@ WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 
 		case IDM_SLEEP:
 			AW_EnterSleep();
+			break;
+
+		case IDM_OPEN_POWER_MENU:
+			// Open the classic Control Panel power options applet
+			ShellExecuteW(NULL, L"open", L"control.exe",
+				L"/name Microsoft.PowerOptions /page pagePlanSettings", NULL, SW_SHOWNORMAL);
 			break;
 
 		case IDM_EXIT:

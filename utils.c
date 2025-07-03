@@ -4,6 +4,7 @@
 #include <windows.h>
 #include <shellapi.h>
 #include <powrprof.h>
+#include <stdio.h>
 
 #include "awake.h"
 #include "utils.h"
@@ -88,4 +89,56 @@ void AW_EnterSleep(void)
 	{
 		MessageBoxW(g_awState.hMainWnd, AW_STR(IDS_ERR_GET_PRIVILEGE), AW_STR(IDS_ERR), MB_ICONWARNING | MB_OK);
 	}
+}
+
+// Activate a power scheme based on its enumeration index.
+void AW_ActivatePowerScheme(ULONG index)
+{
+	// Validate index against the number of cached schemes
+	if (index >= 0 && index < g_awState.powerSchemeCount)
+	{
+		// Directly use the cached GUID
+		GUID* schemeGuid = &g_awState.powerSchemes[index].guid;
+		if (PowerSetActiveScheme(NULL, schemeGuid) != ERROR_SUCCESS)
+		{
+			MessageBoxW(g_awState.hMainWnd, AW_STR(IDS_ERR_ACTIVATE_SCHEME), AW_STR(IDS_ERR), MB_ICONWARNING | MB_OK);
+		}
+	}
+}
+
+// Enumerates all system power schemes and stores them in the global state cache.
+void AW_GetPowerSchemes(void)
+{
+	GUID* activeSchemeGuid = NULL;
+	g_awState.powerSchemeCount = 0;
+	SecureZeroMemory(g_awState.powerSchemes, sizeof(g_awState.powerSchemes));
+
+	PowerGetActiveScheme(NULL, &activeSchemeGuid);
+
+	for (ULONG index = 0; index < MAX_POWER_SCHEMES; ++index)
+	{
+		// Use the cache directly as the destination buffer
+		AW_POWER_INFO* currentScheme = &g_awState.powerSchemes[g_awState.powerSchemeCount];
+		DWORD guidSize = sizeof(GUID);
+
+		if (PowerEnumerate(NULL, NULL, NULL, ACCESS_SCHEME, index, (UCHAR*)&currentScheme->guid, &guidSize) == ERROR_SUCCESS)
+		{
+			DWORD nameSize = sizeof(currentScheme->name);
+			if (PowerReadFriendlyName(NULL, &currentScheme->guid, NULL, NULL, (UCHAR*)currentScheme->name, &nameSize) == ERROR_SUCCESS)
+			{
+				if (activeSchemeGuid && IsEqualGUID(&currentScheme->guid, activeSchemeGuid))
+					currentScheme->active = TRUE;
+				// Both GUID and Name were successfully retrieved, increment count
+				g_awState.powerSchemeCount++;
+			}
+		}
+		else
+		{
+			// ERROR_NO_MORE_ITEMS is the expected end of enumeration
+			break;
+		}
+	}
+
+	if (activeSchemeGuid)
+		LocalFree(activeSchemeGuid);
 }

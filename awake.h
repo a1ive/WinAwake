@@ -18,6 +18,18 @@
 #define IDM_TURN_OFF_SCREEN   1003
 #define IDM_SLEEP             1004
 #define IDM_EXIT              1005
+#define IDM_OPEN_POWER_MENU   1006
+
+#define IDM_POWER_SCHEME_BASE 2000 // Base ID for dynamic power schemes
+#define MAX_POWER_SCHEMES     32   // A reasonable limit for schemes
+
+// A structure to hold cached information for a single power scheme
+typedef struct
+{
+	BOOL active;
+	GUID  guid;
+	WCHAR name[256]; // friendly name
+} AW_POWER_INFO;
 
 // Global structure to hold all application state.
 // This is the only global variable as requested.
@@ -31,6 +43,8 @@ typedef struct
 	HMENU hMenu;
 	BOOL  isKeepingAwake;
 	BOOL  isKeepingScreenOn;
+	AW_POWER_INFO powerSchemes[MAX_POWER_SCHEMES];
+	ULONG powerSchemeCount;
 	WCHAR* uiText[COUNT_IDS_TXT];
 } AWAKE_APP_STATE;
 

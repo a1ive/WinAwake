@@ -66,6 +66,21 @@ void AW_UpdateTrayIcon(HWND hWnd)
 	Shell_NotifyIconW(NIM_MODIFY, &nid);
 }
 
+// Populate a menu with power schemes read from the global cache.
+static void PopulatePowerSchemesMenu(HMENU hSubMenu)
+{
+	for (ULONG i = 0; i < g_awState.powerSchemeCount; i++)
+	{
+		UINT flags = MF_STRING;
+		// Check if the cached scheme is the active one
+		if (g_awState.powerSchemes[i].active)
+			flags |= MF_CHECKED;
+
+		// The menu ID corresponds to the scheme's index in our cache array.
+		AppendMenuW(hSubMenu, flags, IDM_POWER_SCHEME_BASE + i, g_awState.powerSchemes[i].name);
+	}
+}
+
 // Create and display the right-click context menu
 void AW_ShowTrayMenu(HWND hWnd)
 {
@@ -92,6 +107,22 @@ void AW_ShowTrayMenu(HWND hWnd)
 
 		AppendMenuW(g_awState.hMenu, MF_STRING, IDM_TURN_OFF_SCREEN, AW_STR(IDS_MENU_TURN_OFF_SCREEN));
 		AppendMenuW(g_awState.hMenu, MF_STRING, IDM_SLEEP, AW_STR(IDS_MENU_SLEEP));
+
+		AppendMenuW(g_awState.hMenu, MF_SEPARATOR, 0, NULL);
+
+	
+		// Add the submenu to the main menu
+		// Create a submenu for power schemes
+		HMENU hSubMenu = CreatePopupMenu();
+		if (hSubMenu)
+		{
+			AppendMenuW(g_awState.hMenu, MF_STRING, IDM_OPEN_POWER_MENU, AW_STR(IDS_MENU_OPEN_POWER_MENU));
+			// Populate the submenu with available power schemes
+			AW_GetPowerSchemes(); // Ensure we have the latest schemes
+			PopulatePowerSchemesMenu(hSubMenu);
+			// Add the submenu to the main menu
+			AppendMenuW(g_awState.hMenu, MF_POPUP, (UINT_PTR)hSubMenu, AW_STR(IDS_MENU_POWER_SCHEMES));
+		}
 
 		AppendMenuW(g_awState.hMenu, MF_SEPARATOR, 0, NULL);
 
