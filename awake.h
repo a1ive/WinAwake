@@ -26,8 +26,8 @@ typedef struct
 	HWND  hMainWnd;
 	HICON hMainIcon;
 	HICON hIconDisabled;
-	HICON hIconIndefinite;
-	HICON hIconNormal;
+	HICON hIconScreenOn;
+	HICON hIconEnabled;
 	HMENU hMenu;
 	BOOL  isKeepingAwake;
 	BOOL  isKeepingScreenOn;

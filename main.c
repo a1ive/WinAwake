@@ -35,8 +35,8 @@ DestroyAppState(void)
 {
 	DestroyIcon(g_awState.hMainIcon);
 	DestroyIcon(g_awState.hIconDisabled);
-	DestroyIcon(g_awState.hIconIndefinite);
-	DestroyIcon(g_awState.hIconNormal);
+	DestroyIcon(g_awState.hIconScreenOn);
+	DestroyIcon(g_awState.hIconEnabled);
 	FreeUIStrings();
 }
 
@@ -162,8 +162,8 @@ CreateMainWindow(HINSTANCE hInstance)
 
 	g_awState.hMainIcon = LoadIconFromRes(hInstance, IDI_ICON_MAIN);
 	g_awState.hIconDisabled = LoadIconFromRes(hInstance, IDI_ICON_DISABLED);
-	g_awState.hIconIndefinite = LoadIconFromRes(hInstance, IDI_ICON_SCREEN_ON);
-	g_awState.hIconNormal = LoadIconFromRes(hInstance, IDI_ICON_ENABLED);
+	g_awState.hIconScreenOn = LoadIconFromRes(hInstance, IDI_ICON_SCREEN_ON);
+	g_awState.hIconEnabled = LoadIconFromRes(hInstance, IDI_ICON_ENABLED);
 	LoadUIStrings(hInstance);
 
 	wcex.hIcon = g_awState.hMainIcon;

@@ -16,10 +16,8 @@ void AW_UpdateExecState(void)
 	if (g_awState.isKeepingAwake)
 	{
 		esFlags |= ES_SYSTEM_REQUIRED;
-	}
-	if (g_awState.isKeepingScreenOn)
-	{
-		esFlags |= ES_DISPLAY_REQUIRED;
+		if (g_awState.isKeepingScreenOn)
+			esFlags |= ES_DISPLAY_REQUIRED;
 	}
 
 	// If either flag is set, this call prevents sleep/display off.

@@ -40,15 +40,27 @@ void AW_UpdateTrayIcon(HWND hWnd)
 	nid.cbSize = sizeof(NOTIFYICONDATAW);
 	nid.hWnd = hWnd;
 	nid.uID = 1;
-	nid.uFlags = NIF_ICON; // We are only modifying the icon
+	nid.uFlags = NIF_ICON | NIF_TIP;
 
 	// Determine which icon to display.
-	if (g_awState.isKeepingScreenOn)
-		nid.hIcon = g_awState.hIconIndefinite;
-	else if (g_awState.isKeepingAwake)
-		nid.hIcon = g_awState.hIconNormal;
+	if (g_awState.isKeepingAwake)
+	{
+		if (g_awState.isKeepingScreenOn)
+		{
+			wcscpy_s(nid.szTip, ARRAYSIZE(nid.szTip), AW_STR(IDS_MENU_KEEP_SCREEN_ON));
+			nid.hIcon = g_awState.hIconScreenOn;
+		}
+		else
+		{
+			wcscpy_s(nid.szTip, ARRAYSIZE(nid.szTip), AW_STR(IDS_MENU_KEEP_AWAKE));
+			nid.hIcon = g_awState.hIconEnabled;
+		}
+	}
 	else
+	{
+		wcscpy_s(nid.szTip, ARRAYSIZE(nid.szTip), AW_DESC);
 		nid.hIcon = g_awState.hIconDisabled;
+	}
 
 	// Modify the existing notification icon.
 	Shell_NotifyIconW(NIM_MODIFY, &nid);
@@ -64,14 +76,25 @@ void AW_ShowTrayMenu(HWND hWnd)
 	if (g_awState.hMenu)
 	{
 		// Add menu items, checking state for the toggles
-		AppendMenuW(g_awState.hMenu, MF_STRING | (g_awState.isKeepingAwake ? MF_CHECKED : MF_UNCHECKED),
-			IDM_KEEP_AWAKE, AW_STR(IDS_MENU_KEEP_AWAKE));
-		AppendMenuW(g_awState.hMenu, MF_STRING | (g_awState.isKeepingScreenOn ? MF_CHECKED : MF_UNCHECKED),
-			IDM_KEEP_SCREEN_ON, AW_STR(IDS_MENU_KEEP_SCREEN_ON));
+		UINT uFlags = MF_STRING;
+		if (g_awState.isKeepingAwake)
+			uFlags |= MF_CHECKED;
+		AppendMenuW(g_awState.hMenu, uFlags, IDM_KEEP_AWAKE, AW_STR(IDS_MENU_KEEP_AWAKE));
+
+		uFlags = MF_STRING;
+		if (g_awState.isKeepingScreenOn)
+			uFlags |= MF_CHECKED;
+		if (!g_awState.isKeepingAwake)
+			uFlags |= MF_GRAYED;
+		AppendMenuW(g_awState.hMenu, uFlags, IDM_KEEP_SCREEN_ON, AW_STR(IDS_MENU_KEEP_SCREEN_ON));
+
 		AppendMenuW(g_awState.hMenu, MF_SEPARATOR, 0, NULL);
+
 		AppendMenuW(g_awState.hMenu, MF_STRING, IDM_TURN_OFF_SCREEN, AW_STR(IDS_MENU_TURN_OFF_SCREEN));
 		AppendMenuW(g_awState.hMenu, MF_STRING, IDM_SLEEP, AW_STR(IDS_MENU_SLEEP));
+
 		AppendMenuW(g_awState.hMenu, MF_SEPARATOR, 0, NULL);
+
 		AppendMenuW(g_awState.hMenu, MF_STRING, IDM_EXIT, AW_STR(IDS_MENU_EXIT));
 
 		// This is required for the menu to behave correctly
