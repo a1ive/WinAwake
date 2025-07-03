@@ -90,6 +90,9 @@ WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 			break;
 
 		case IDM_OPEN_POWER_MENU:
+			// TODO: Use modern settings if available
+			// start ms-settings:powersleep
+
 			// Open the classic Control Panel power options applet
 			ShellExecuteW(NULL, L"open", L"control.exe",
 				L"/name Microsoft.PowerOptions /page pagePlanSettings", NULL, SW_SHOWNORMAL);

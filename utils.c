@@ -124,6 +124,8 @@ void AW_GetPowerSchemes(void)
 		if (PowerEnumerate(NULL, NULL, NULL, ACCESS_SCHEME, index, (UCHAR*)&currentScheme->guid, &guidSize) == ERROR_SUCCESS)
 		{
 			DWORD nameSize = sizeof(currentScheme->name);
+			// TODO: Add XP support.
+			// PowerReadFriendlyName requires Windows Vista or later
 			if (PowerReadFriendlyName(NULL, &currentScheme->guid, NULL, NULL, (UCHAR*)currentScheme->name, &nameSize) == ERROR_SUCCESS)
 			{
 				if (activeSchemeGuid && IsEqualGUID(&currentScheme->guid, activeSchemeGuid))
