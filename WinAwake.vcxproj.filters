@@ -13,6 +13,9 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="GitHub">
+      <UniqueIdentifier>{e4830e8e-70b8-4bb1-b81e-996898cc2d89}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.c">
@@ -63,5 +66,11 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+    <None Include=".github\workflows\msbuild.yml">
+      <Filter>GitHub</Filter>
+    </None>
+    <None Include="README.md">
+      <Filter>GitHub</Filter>
+    </None>
   </ItemGroup>
 </Project>
