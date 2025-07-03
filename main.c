@@ -98,6 +98,14 @@ WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 				L"/name Microsoft.PowerOptions /page pagePlanSettings", NULL, SW_SHOWNORMAL);
 			break;
 
+		case IDM_AUTO_START:
+		{
+			BOOL isCurrentlyEnabled = AW_IsAutoStartEnabled();
+			if (!AW_SetAutoStart(!isCurrentlyEnabled))
+				MessageBoxW(hWnd, AW_STR(IDS_ERR_SET_AUTO_START), AW_STR(IDS_ERR), MB_ICONERROR | MB_OK);
+			break;
+		}
+
 		case IDM_EXIT:
 			DestroyWindow(hWnd);
 			break;

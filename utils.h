@@ -13,3 +13,7 @@ void AW_EnterSleep(void);
 void AW_ActivatePowerScheme(ULONG index);
 
 void AW_GetPowerSchemes(void);
+
+BOOL AW_IsAutoStartEnabled(void);
+
+BOOL AW_SetAutoStart(BOOL enable);

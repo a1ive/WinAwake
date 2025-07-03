@@ -126,6 +126,10 @@ void AW_ShowTrayMenu(HWND hWnd)
 
 		AppendMenuW(g_awState.hMenu, MF_SEPARATOR, 0, NULL);
 
+		uFlags = MF_STRING;
+		if (AW_IsAutoStartEnabled())
+			uFlags |= MF_CHECKED;
+		AppendMenuW(g_awState.hMenu, uFlags, IDM_AUTO_START, AW_STR(IDS_MENU_AUTO_START));
 		AppendMenuW(g_awState.hMenu, MF_STRING, IDM_EXIT, AW_STR(IDS_MENU_EXIT));
 
 		// This is required for the menu to behave correctly

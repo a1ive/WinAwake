@@ -19,6 +19,7 @@
 #define IDM_SLEEP             1004
 #define IDM_EXIT              1005
 #define IDM_OPEN_POWER_MENU   1006
+#define IDM_AUTO_START        1007
 
 #define IDM_POWER_SCHEME_BASE 2000 // Base ID for dynamic power schemes
 #define MAX_POWER_SCHEMES     32   // A reasonable limit for schemes

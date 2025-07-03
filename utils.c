@@ -4,10 +4,12 @@
 #include <windows.h>
 #include <shellapi.h>
 #include <powrprof.h>
+#include <winreg.h>
 #include <stdio.h>
 
 #include "awake.h"
 #include "utils.h"
+#include "version.h"
 
 // Set the thread execution state to prevent or allow sleep/screen off
 void AW_UpdateExecState(void)
@@ -143,4 +145,71 @@ void AW_GetPowerSchemes(void)
 
 	if (activeSchemeGuid)
 		LocalFree(activeSchemeGuid);
+}
+
+// Check if the application is configured to run at startup.
+BOOL AW_IsAutoStartEnabled(void)
+{
+	HKEY hKey = NULL;
+	LONG lResult = RegOpenKeyExW(
+		HKEY_CURRENT_USER,
+		L"Software\\Microsoft\\Windows\\CurrentVersion\\Run",
+		0,
+		KEY_QUERY_VALUE,
+		&hKey
+	);
+
+	if (lResult != ERROR_SUCCESS)
+		return FALSE; // Cannot open key, assume not enabled
+
+	// Check if our specific value exists
+	lResult = RegQueryValueExW(hKey, L""AW_NAME, NULL, NULL, NULL, NULL);
+	RegCloseKey(hKey);
+
+	return (lResult == ERROR_SUCCESS);
+}
+
+// Enable or disable running the application at startup by modifying the registry.
+BOOL AW_SetAutoStart(BOOL enable)
+{
+	HKEY hKey = NULL;
+	LONG lResult = RegOpenKeyExW(
+		HKEY_CURRENT_USER,
+		L"Software\\Microsoft\\Windows\\CurrentVersion\\Run",
+		0,
+		KEY_SET_VALUE, // We need write access
+		&hKey
+	);
+
+	if (lResult != ERROR_SUCCESS)
+		return FALSE; // Cannot open key
+
+	if (enable)
+	{
+		WCHAR szPath[MAX_PATH];
+		// Get the full path of the current executable
+		if (GetModuleFileNameW(NULL, szPath, MAX_PATH) == 0)
+		{
+			RegCloseKey(hKey);
+			return FALSE;
+		}
+
+		// Set the registry value
+		lResult = RegSetValueExW(
+			hKey,
+			L""AW_NAME,
+			0,
+			REG_SZ,
+			(const BYTE*)szPath,
+			((DWORD)wcslen(szPath) + 1) * sizeof(WCHAR)
+		);
+	}
+	else
+	{
+		// Delete the registry value
+		lResult = RegDeleteValueW(hKey, L""AW_NAME);
+	}
+
+	RegCloseKey(hKey);
+	return (lResult == ERROR_SUCCESS);
 }
