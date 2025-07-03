@@ -5,6 +5,8 @@
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 
+#include "resource.h"
+
 #define AW_DESC L"Power Control Utility"
 
 // Define a custom message for the notification icon
@@ -29,6 +31,9 @@ typedef struct
 	HMENU hMenu;
 	BOOL  isKeepingAwake;
 	BOOL  isKeepingScreenOn;
+	WCHAR* uiText[COUNT_IDS_TXT];
 } AWAKE_APP_STATE;
+
+#define AW_STR(id) (g_awState.uiText[(id) - MIN_IDS_TXT])
 
 extern AWAKE_APP_STATE g_awState;

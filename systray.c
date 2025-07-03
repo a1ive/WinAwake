@@ -64,13 +64,15 @@ void AW_ShowTrayMenu(HWND hWnd)
 	if (g_awState.hMenu)
 	{
 		// Add menu items, checking state for the toggles
-		AppendMenuW(g_awState.hMenu, MF_STRING | (g_awState.isKeepingAwake ? MF_CHECKED : MF_UNCHECKED), IDM_KEEP_AWAKE, L"Keep System Awake");
-		AppendMenuW(g_awState.hMenu, MF_STRING | (g_awState.isKeepingScreenOn ? MF_CHECKED : MF_UNCHECKED), IDM_KEEP_SCREEN_ON, L"Keep Screen On");
+		AppendMenuW(g_awState.hMenu, MF_STRING | (g_awState.isKeepingAwake ? MF_CHECKED : MF_UNCHECKED),
+			IDM_KEEP_AWAKE, AW_STR(IDS_MENU_KEEP_AWAKE));
+		AppendMenuW(g_awState.hMenu, MF_STRING | (g_awState.isKeepingScreenOn ? MF_CHECKED : MF_UNCHECKED),
+			IDM_KEEP_SCREEN_ON, AW_STR(IDS_MENU_KEEP_SCREEN_ON));
 		AppendMenuW(g_awState.hMenu, MF_SEPARATOR, 0, NULL);
-		AppendMenuW(g_awState.hMenu, MF_STRING, IDM_TURN_OFF_SCREEN, L"Turn Off Screen Now");
-		AppendMenuW(g_awState.hMenu, MF_STRING, IDM_SLEEP, L"Sleep Now");
+		AppendMenuW(g_awState.hMenu, MF_STRING, IDM_TURN_OFF_SCREEN, AW_STR(IDS_MENU_TURN_OFF_SCREEN));
+		AppendMenuW(g_awState.hMenu, MF_STRING, IDM_SLEEP, AW_STR(IDS_MENU_SLEEP));
 		AppendMenuW(g_awState.hMenu, MF_SEPARATOR, 0, NULL);
-		AppendMenuW(g_awState.hMenu, MF_STRING, IDM_EXIT, L"Exit");
+		AppendMenuW(g_awState.hMenu, MF_STRING, IDM_EXIT, AW_STR(IDS_MENU_EXIT));
 
 		// This is required for the menu to behave correctly
 		SetForegroundWindow(hWnd);

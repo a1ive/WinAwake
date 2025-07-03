@@ -160,10 +160,10 @@
     <ResourceCompile Include="awake.rc" />
   </ItemGroup>
   <ItemGroup>
-    <Image Include="res\awake.ico" />
+    <Image Include="res\main.ico" />
     <Image Include="res\disabled.ico" />
-    <Image Include="res\indefinite.ico" />
-    <Image Include="res\normal.ico" />
+    <Image Include="res\screenon.ico" />
+    <Image Include="res\enabled.ico" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

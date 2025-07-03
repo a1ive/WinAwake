@@ -2,6 +2,7 @@
 
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
+#include <stdlib.h>
 
 #include "awake.h"
 #include "utils.h"
@@ -15,6 +16,19 @@
 
 AWAKE_APP_STATE g_awState;
 
+// Free the memory allocated for the cached strings.
+static void FreeUIStrings(void)
+{
+	for (int i = 0; i < COUNT_IDS_TXT; ++i)
+	{
+		if (g_awState.uiText[i])
+		{
+			free(g_awState.uiText[i]);
+			g_awState.uiText[i] = NULL;
+		}
+	}
+}
+
 // Clean up resources
 static void
 DestroyAppState(void)
@@ -23,6 +37,7 @@ DestroyAppState(void)
 	DestroyIcon(g_awState.hIconDisabled);
 	DestroyIcon(g_awState.hIconIndefinite);
 	DestroyIcon(g_awState.hIconNormal);
+	FreeUIStrings();
 }
 
 // Main window procedure to handle messages
@@ -101,6 +116,36 @@ LoadIconFromRes(HINSTANCE hInstance, WORD id)
 	return hIcon;
 }
 
+// Load all necessary strings from resources
+static BOOL LoadUIStrings(HINSTANCE hInstance)
+{
+	for (UINT id = MIN_IDS_TXT; id <= MAX_IDS_TEXT; ++id)
+	{
+		const WCHAR* pStringResource = NULL;
+		int len = LoadStringW(hInstance, id, (LPWSTR)&pStringResource, 0);
+
+		if (len > 0)
+		{
+			WCHAR* buffer = (WCHAR*)calloc((size_t)len + 1, sizeof(WCHAR));
+			if (!buffer)
+			{
+				FreeUIStrings();
+				return FALSE;
+			}
+			// Copy the string content.
+			// The null terminator is already in place thanks to calloc.
+			memcpy(buffer, pStringResource, (size_t)len * sizeof(WCHAR));
+			g_awState.uiText[id - MIN_IDS_TXT] = buffer;
+		}
+		else
+		{
+			FreeUIStrings();
+			return FALSE;
+		}
+	}
+	return TRUE;
+}
+
 // Create the main (hidden) window and registers its class
 static BOOL
 CreateMainWindow(HINSTANCE hInstance)
@@ -117,8 +162,9 @@ CreateMainWindow(HINSTANCE hInstance)
 
 	g_awState.hMainIcon = LoadIconFromRes(hInstance, IDI_ICON_MAIN);
 	g_awState.hIconDisabled = LoadIconFromRes(hInstance, IDI_ICON_DISABLED);
-	g_awState.hIconIndefinite = LoadIconFromRes(hInstance, IDI_ICON_INDEFINITE);
-	g_awState.hIconNormal = LoadIconFromRes(hInstance, IDI_ICON_NORMAL);
+	g_awState.hIconIndefinite = LoadIconFromRes(hInstance, IDI_ICON_SCREEN_ON);
+	g_awState.hIconNormal = LoadIconFromRes(hInstance, IDI_ICON_ENABLED);
+	LoadUIStrings(hInstance);
 
 	wcex.hIcon = g_awState.hMainIcon;
 	wcex.hCursor = LoadCursorW(NULL, IDC_ARROW);
@@ -159,12 +205,16 @@ wWinMain(_In_ HINSTANCE hInstance,
 	(void)lpCmdLine;
 	(void)nShowCmd;
 
+#ifdef _DEBUG
+	SetThreadUILanguage(GetUserDefaultUILanguage());
+#endif
+
 	// Initialize the global state structure
 	SecureZeroMemory(&g_awState, sizeof(AWAKE_APP_STATE));
 
 	if (!CreateMainWindow(hInstance))
 	{
-		MessageBoxW(NULL, L"Failed to create main window!", L"Error", MB_ICONERROR | MB_OK);
+		MessageBoxW(NULL, AW_STR(IDS_ERR_CREATE_WINDOW), AW_STR(IDS_ERR), MB_ICONERROR | MB_OK);
 		DestroyAppState();
 		return 1;
 	}

@@ -48,16 +48,16 @@
     </ResourceCompile>
   </ItemGroup>
   <ItemGroup>
-    <Image Include="res\awake.ico">
+    <Image Include="res\main.ico">
       <Filter>Resource Files</Filter>
     </Image>
     <Image Include="res\disabled.ico">
       <Filter>Resource Files</Filter>
     </Image>
-    <Image Include="res\indefinite.ico">
+    <Image Include="res\screenon.ico">
       <Filter>Resource Files</Filter>
     </Image>
-    <Image Include="res\normal.ico">
+    <Image Include="res\enabled.ico">
       <Filter>Resource Files</Filter>
     </Image>
   </ItemGroup>

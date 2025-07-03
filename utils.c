@@ -88,6 +88,6 @@ void AW_EnterSleep(void)
 	}
 	else
 	{
-		MessageBoxW(g_awState.hMainWnd, L"Failed to get privilege for sleeping. Try running as administrator.", L"Permission Denied", MB_ICONWARNING | MB_OK);
+		MessageBoxW(g_awState.hMainWnd, AW_STR(IDS_ERR_GET_PRIVILEGE), AW_STR(IDS_ERR), MB_ICONWARNING | MB_OK);
 	}
 }
