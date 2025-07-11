@@ -124,6 +124,12 @@ WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		}
 		break;
 
+	case WM_FALLBACK_SCREEOFF:
+	{
+		SendMessageW(hWnd, WM_SYSCOMMAND, SC_MONITORPOWER, 2);
+		break;
+	}
+
 	default:
 		return DefWindowProcW(hWnd, uMsg, wParam, lParam);
 	}

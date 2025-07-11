@@ -6,6 +6,7 @@
 #include <powrprof.h>
 #include <winreg.h>
 #include <stdio.h>
+#include <stdlib.h>
 
 #include "awake.h"
 #include "utils.h"
@@ -64,6 +65,69 @@ BOOL AW_EnableShutdownPrivilege(void)
 	return TRUE;
 }
 
+typedef struct
+{
+	HWND hParentWnd;
+} SCR_OFF_CTX;
+
+static BOOL
+SetActivePowerPlanValue(const GUID* pActiveSchemeGuid, const GUID* pSubGroupGuid, const GUID* pSettingGuid, DWORD value)
+{
+	if (PowerWriteACValueIndex(NULL, pActiveSchemeGuid, pSubGroupGuid, pSettingGuid, value) != ERROR_SUCCESS)
+		return FALSE;
+
+	if (PowerWriteDCValueIndex(NULL, pActiveSchemeGuid, pSubGroupGuid, pSettingGuid, value) != ERROR_SUCCESS)
+		return FALSE;
+
+	if (PowerSetActiveScheme(NULL, pActiveSchemeGuid) != ERROR_SUCCESS)
+		return FALSE;
+
+	return TRUE;
+}
+
+static DWORD WINAPI
+ScreenOffThreadProc(LPVOID lpParam)
+{
+	SCR_OFF_CTX* params = (SCR_OFF_CTX*)lpParam;
+	HWND hParentWnd = params ? params->hParentWnd : NULL;
+	free(params);
+
+	if (!hParentWnd)
+		return 1;
+
+	GUID* pActiveSchemeGuid = NULL;
+	DWORD originalTimeoutAC = 0;
+	DWORD originalTimeoutDC = 0;
+
+	if (PowerGetActiveScheme(NULL, &pActiveSchemeGuid) != ERROR_SUCCESS)
+	{
+		PostMessageW(hParentWnd, WM_FALLBACK_SCREEOFF, 0, 0);
+		return 1;
+	}
+
+	PowerReadACValueIndex(NULL, pActiveSchemeGuid, &GUID_VIDEO_SUBGROUP, &GUID_VIDEO_POWERDOWN_TIMEOUT, &originalTimeoutAC);
+	PowerReadDCValueIndex(NULL, pActiveSchemeGuid, &GUID_VIDEO_SUBGROUP, &GUID_VIDEO_POWERDOWN_TIMEOUT, &originalTimeoutDC);
+
+	if (!SetActivePowerPlanValue(pActiveSchemeGuid, &GUID_VIDEO_SUBGROUP, &GUID_VIDEO_POWERDOWN_TIMEOUT, 1))
+	{
+		PostMessageW(hParentWnd, WM_FALLBACK_SCREEOFF, 0, 0);
+		goto restore;
+	}
+
+	Sleep(2000);
+
+restore:
+	SetActivePowerPlanValue(pActiveSchemeGuid, &GUID_VIDEO_SUBGROUP, &GUID_VIDEO_POWERDOWN_TIMEOUT, originalTimeoutAC);
+	PowerWriteDCValueIndex(NULL, pActiveSchemeGuid, &GUID_VIDEO_SUBGROUP, &GUID_VIDEO_POWERDOWN_TIMEOUT, originalTimeoutDC);
+	PowerSetActiveScheme(NULL, pActiveSchemeGuid);
+
+	if (pActiveSchemeGuid)
+		LocalFree(pActiveSchemeGuid);
+
+	// If we reach here, the primary method either succeeded or has already posted a fallback message.
+	return 0;
+}
+
 // Turn off the monitor immediately
 void AW_TurnOffScreen(HWND hWnd)
 {
@@ -74,7 +138,25 @@ void AW_TurnOffScreen(HWND hWnd)
 	//     -1 (the display is powering on)
 	//      1 (the display is going to low power)
 	//      2 (the display is being shut off)
-	SendMessageW(hWnd, WM_SYSCOMMAND, SC_MONITORPOWER, 2);
+
+	SCR_OFF_CTX* params = (SCR_OFF_CTX*)malloc(sizeof(SCR_OFF_CTX));
+	if (!params)
+	{
+		SendMessageW(hWnd, WM_SYSCOMMAND, SC_MONITORPOWER, 2);
+		return;
+	}
+	params->hParentWnd = hWnd;
+
+	HANDLE hThread = CreateThread(NULL, 0, ScreenOffThreadProc, params, 0, NULL);
+
+	if (hThread == NULL)
+	{
+		SendMessageW(hWnd, WM_SYSCOMMAND, SC_MONITORPOWER, 2);
+		free(params);
+		return;
+	}
+
+	CloseHandle(hThread);
 }
 
 // Put the system to sleep immediately

@@ -12,6 +12,9 @@
 // Define a custom message for the notification icon
 #define WM_TRAYICON (WM_APP + 1)
 
+// Define a message to trigger the fallback screen-off method
+#define WM_FALLBACK_SCREEOFF (WM_APP + 2)
+
 // Define menu item identifiers
 #define IDM_KEEP_AWAKE        1001
 #define IDM_KEEP_SCREEN_ON    1002
